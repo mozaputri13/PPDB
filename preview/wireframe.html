@@ -1,0 +1,1869 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wireframe & Arsitektur Alur — PPDB MTs/SMP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #238653;
+      --primary-hover: #1c6d43;
+      --primary-soft: #e7f8ed;
+      --soft-green: #8BDFA8;
+      --bg: #F7FAF8;
+      --surface: #FFFFFF;
+      --text: #173126;
+      --text-muted: #64746B;
+      --border: #E1EAE4;
+      --warning: #D97706;
+      --warning-bg: #FEF3C7;
+      --error: #DC2626;
+      --error-bg: #FEE2E2;
+      --success: #16834A;
+      --success-bg: #DCFCE7;
+      --info: #0284C7;
+      --info-bg: #E0F2FE;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --shadow-sm: 0 1px 3px rgba(23, 49, 38, 0.05);
+      --shadow-md: 0 4px 16px rgba(23, 49, 38, 0.08);
+      --shadow-lg: 0 12px 32px rgba(23, 49, 38, 0.1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: #0f1d16;
+      color: var(--text);
+      line-height: 1.5;
+      font-size: 15px;
+      overflow-x: hidden;
+    }
+
+    /* Top Control Bar */
+    .wireframe-toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 9999;
+      background: #173126;
+      color: #fff;
+      padding: 10px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid #28543f;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+    }
+    .toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .badge-fase {
+      background: var(--primary);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 999px;
+      letter-spacing: 0.04em;
+    }
+    .toolbar-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #d1fae5;
+    }
+    .nav-tabs {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+      max-width: 100%;
+    }
+    .tab-btn {
+      background: #234636;
+      color: #cbd5e1;
+      border: 1px solid #33614b;
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+    .tab-btn:hover {
+      background: #2f5c47;
+      color: #fff;
+    }
+    .tab-btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--soft-green);
+      font-weight: 700;
+    }
+    .toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .state-selector, .viewport-selector {
+      display: flex;
+      align-items: center;
+      background: #234636;
+      border-radius: var(--radius-sm);
+      padding: 2px;
+      border: 1px solid #33614b;
+    }
+    .state-btn, .vp-btn {
+      background: transparent;
+      border: none;
+      color: #cbd5e1;
+      padding: 4px 9px;
+      font-size: 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .state-btn.active, .vp-btn.active {
+      background: #fff;
+      color: #173126;
+      font-weight: 700;
+    }
+
+    /* Simulation Canvas */
+    .canvas-container {
+      padding: 24px 16px 80px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: calc(100vh - 65px);
+    }
+    .viewport-frame {
+      width: 100%;
+      max-width: 1200px;
+      background: var(--bg);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      border: 1px solid #28543f;
+      min-height: 820px;
+      transition: max-width 0.3s ease;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .viewport-frame.tablet {
+      max-width: 768px;
+    }
+    .viewport-frame.mobile {
+      max-width: 390px;
+    }
+
+    /* Wireframe Subheader / Context Bar */
+    .screen-meta {
+      background: #eef6f1;
+      border-bottom: 1px solid var(--border);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+    }
+    .screen-meta strong {
+      color: var(--primary);
+    }
+    .screen-notes {
+      color: var(--text-muted);
+    }
+
+    /* Shared Wireframe Components */
+    .wire-header {
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      padding: 14px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      color: var(--primary);
+      font-size: 18px;
+    }
+    .brand-tag {
+      font-size: 11px;
+      background: var(--primary-soft);
+      color: var(--primary);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+    .wire-nav {
+      display: flex;
+      gap: 20px;
+      font-size: 14px;
+      color: var(--text-muted);
+      align-items: center;
+    }
+    .wire-nav a {
+      color: inherit;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .wire-nav a:hover {
+      color: var(--primary);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 9px 18px;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+    .btn-outline {
+      background: #fff;
+      border-color: var(--border);
+      color: var(--text);
+    }
+    .btn-outline:hover {
+      background: #f1f6f3;
+      border-color: #cbd5e1;
+    }
+    .btn-danger {
+      background: #fee2e2;
+      color: var(--error);
+      border-color: #fca5a5;
+    }
+    .btn-danger:hover {
+      background: #fecaca;
+    }
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 13px;
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .badge-draft { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+    .badge-submitted { background: var(--info-bg); color: var(--info); border: 1px solid #bae6fd; }
+    .badge-under-review { background: var(--warning-bg); color: var(--warning); border: 1px solid #fde68a; }
+    .badge-needs-revision { background: #ffedd5; color: #ea580c; border: 1px solid #fed7aa; }
+    .badge-verified { background: #ccfbf1; color: #0d9488; border: 1px solid #99f6e4; }
+    .badge-accepted { background: var(--success-bg); color: var(--success); border: 1px solid #bbf7d0; }
+    .badge-not-accepted { background: var(--error-bg); color: var(--error); border: 1px solid #fecaca; }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    /* Card Panels */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Forms */
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+    .form-label .req {
+      color: var(--error);
+      margin-left: 2px;
+    }
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 14px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(35, 134, 83, 0.15);
+    }
+    .form-hint {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 5px;
+    }
+    .form-error-msg {
+      font-size: 12px;
+      color: var(--error);
+      margin-top: 5px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Steps Indicator */
+    .stepper {
+      display: flex;
+      justify-content: space-between;
+      position: relative;
+      margin-bottom: 28px;
+    }
+    .stepper::before {
+      content: '';
+      position: absolute;
+      top: 18px;
+      left: 30px;
+      right: 30px;
+      height: 2px;
+      background: var(--border);
+      z-index: 1;
+    }
+    .step-item {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      flex: 1;
+      text-align: center;
+    }
+    .step-circle {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #fff;
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+    .step-item.active .step-circle {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: #fff;
+    }
+    .step-item.done .step-circle {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+    .step-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .step-item.active .step-title {
+      color: var(--primary);
+    }
+
+    /* Upload Box */
+    .upload-box {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      text-align: center;
+      background: #fafcfb;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .upload-box:hover {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+    }
+    .upload-icon {
+      font-size: 28px;
+      margin-bottom: 8px;
+      color: var(--primary);
+    }
+
+    /* Admin Sidebar Layout */
+    .admin-layout {
+      display: flex;
+      min-height: 750px;
+      background: var(--bg);
+    }
+    .admin-sidebar {
+      width: 250px;
+      background: #fff;
+      border-right: 1px solid var(--border);
+      padding: 20px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .admin-menu-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s;
+    }
+    .admin-menu-item:hover {
+      background: #f1f6f3;
+      color: var(--text);
+    }
+    .admin-menu-item.active {
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+    .admin-content {
+      flex: 1;
+      padding: 28px;
+      overflow-y: auto;
+    }
+
+    /* Data Table */
+    .data-table-wrapper {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow-x: auto;
+    }
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 13.5px;
+    }
+    .data-table th {
+      background: #f8faf9;
+      padding: 12px 16px;
+      font-weight: 700;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+    }
+    .data-table td {
+      padding: 13px 16px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+    .data-table tr:last-child td {
+      border-bottom: none;
+    }
+    .data-table tr:hover td {
+      background: #fafcfb;
+    }
+
+    /* States Simulation Styles */
+    .state-overlay {
+      display: none;
+    }
+    .state-loading .content-normal { display: none !important; }
+    .state-loading .content-loading { display: block !important; }
+
+    .state-empty .content-normal { display: none !important; }
+    .state-empty .content-empty { display: flex !important; }
+
+    .state-error .content-normal { display: none !important; }
+    .state-error .content-error { display: block !important; }
+
+    .state-success .content-normal { display: none !important; }
+    .state-success .content-success { display: block !important; }
+
+    /* Skeleton Loading */
+    .skeleton {
+      background: linear-gradient(90deg, #e9f0ec 25%, #f6faf7 50%, #e9f0ec 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+      border-radius: 4px;
+    }
+    @keyframes skeleton-loading {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    .sk-title { height: 24px; width: 40%; margin-bottom: 14px; }
+    .sk-line { height: 16px; width: 100%; margin-bottom: 10px; }
+    .sk-card { height: 120px; width: 100%; border-radius: var(--radius-md); }
+
+    /* Empty State Box */
+    .empty-state-box {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 20px;
+      text-align: center;
+      background: #fff;
+      border-radius: var(--radius-md);
+      border: 1px dashed var(--border);
+    }
+    .empty-icon {
+      font-size: 48px;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+
+    /* Error Box */
+    .error-banner {
+      background: var(--error-bg);
+      border: 1px solid #fecaca;
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      color: #991b1b;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    /* Success Box */
+    .success-banner {
+      background: var(--success-bg);
+      border: 1px solid #bbf7d0;
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      color: #14532d;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Print Preview Mock */
+    .print-sheet {
+      background: #fff;
+      border: 1px solid var(--border);
+      padding: 32px;
+      max-width: 640px;
+      margin: 0 auto;
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-sm);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Toolbar -->
+  <div class="wireframe-toolbar">
+    <div class="toolbar-left">
+      <span class="badge-fase">FASE 1 — WIREFRAME</span>
+      <div class="toolbar-title">Arsitektur UI & State PPDB MTs/SMP</div>
+    </div>
+
+    <!-- Screen Navigator -->
+    <div class="nav-tabs">
+      <button class="tab-btn active" onclick="switchScreen('publik')">1. Publik / Landing</button>
+      <button class="tab-btn" onclick="switchScreen('auth')">2. Autentikasi (Siswa/Admin)</button>
+      <button class="tab-btn" onclick="switchScreen('formulir')">3. Formulir Pendaftaran</button>
+      <button class="tab-btn" onclick="switchScreen('dashboard-siswa')">4. Dashboard Siswa</button>
+      <button class="tab-btn" onclick="switchScreen('dashboard-admin')">5. Dashboard Admin</button>
+      <button class="tab-btn" onclick="switchScreen('verifikasi-admin')">6. Panel Verifikasi</button>
+      <button class="tab-btn" onclick="switchScreen('seleksi-admin')">7. Seleksi & Pengumuman</button>
+      <button class="tab-btn" onclick="switchScreen('laporan-admin')">8. Laporan & Ekspor</button>
+    </div>
+
+    <!-- Controls: State Simulation & Viewport -->
+    <div class="toolbar-right">
+      <div class="state-selector" title="Simulasikan Status Komponen">
+        <button class="state-btn active" onclick="setScreenState('normal')">Normal</button>
+        <button class="state-btn" onclick="setScreenState('loading')">Loading</button>
+        <button class="state-btn" onclick="setScreenState('empty')">Empty</button>
+        <button class="state-btn" onclick="setScreenState('error')">Error</button>
+        <button class="state-btn" onclick="setScreenState('success')">Success</button>
+      </div>
+
+      <div class="viewport-selector" title="Simulasi Ukuran Layar">
+        <button class="vp-btn active" onclick="setViewport('desktop')">🖥️ Desktop</button>
+        <button class="vp-btn" onclick="setViewport('tablet')">📱 Tablet</button>
+        <button class="vp-btn" onclick="setViewport('mobile')">📲 Mobile</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Canvas -->
+  <div class="canvas-container">
+    <div id="viewportFrame" class="viewport-frame">
+
+      <!-- ==========================================
+           SCREEN 1: HALAMAN PUBLIK / LANDING
+           ========================================== -->
+      <div id="screen-publik" class="screen-view">
+        <div class="screen-meta">
+          <div><strong>Area Publik</strong> — Beranda Informasi PPDB MTs/SMP</div>
+          <div class="screen-notes">Navigasi publik, hero informasi, alur, persyaratan berkas, jadwal, dan CTA</div>
+        </div>
+
+        <header class="wire-header">
+          <div class="brand">
+            <span>PPDB Online</span>
+            <span class="brand-tag">MTs/SMP Negeri 1</span>
+          </div>
+          <nav class="wire-nav">
+            <a onclick="switchScreen('publik')">Beranda</a>
+            <a href="#jadwal">Jadwal</a>
+            <a href="#syarat">Persyaratan</a>
+            <a href="#alur">Alur</a>
+            <a href="#faq">FAQ</a>
+            <button class="btn btn-outline btn-sm" onclick="switchScreen('auth', 'admin')">Portal Panitia</button>
+            <button class="btn btn-primary btn-sm" onclick="switchScreen('auth', 'siswa')">Masuk / Daftar</button>
+          </nav>
+        </header>
+
+        <!-- Content Normal -->
+        <div class="content-normal" style="padding: 36px 32px;">
+          <!-- Hero Section -->
+          <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 32px; align-items: center; margin-bottom: 48px;">
+            <div>
+              <span class="badge badge-verified" style="margin-bottom: 12px;">Tahun Ajaran 2026/2027 Telah Dibuka</span>
+              <h1 style="font-size: 36px; line-height: 1.2; font-weight: 800; color: var(--text); margin-bottom: 14px;">
+                Penerimaan Peserta Didik Baru Terpadu & Transparan
+              </h1>
+              <p style="color: var(--text-muted); font-size: 16px; margin-bottom: 24px;">
+                Daftar secara daring dari rumah dengan mudah. Isi biodata calon siswa, unggah berkas persyaratan, dan pantau status kelulusan secara real-time.
+              </p>
+              <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <button class="btn btn-primary" onclick="switchScreen('auth', 'register')">Daftar Akun Siswa Baru →</button>
+                <button class="btn btn-outline" onclick="switchScreen('formulir')">Lihat Simulasi Formulir</button>
+              </div>
+            </div>
+            <div class="card" style="background: #ffffff; border: 2px solid var(--border);">
+              <div class="card-title">📌 Informasi Penting PPDB</div>
+              <div style="display: flex; flex-direction: column; gap: 12px; font-size: 13.5px;">
+                <div style="display: flex; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid var(--border);">
+                  <span style="color: var(--text-muted);">Periode Pendaftaran</span>
+                  <strong>1 Mei – 30 Juni 2026</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid var(--border);">
+                  <span style="color: var(--text-muted);">Verifikasi Berkas</span>
+                  <strong>1 Mei – 2 Juli 2026</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid var(--border);">
+                  <span style="color: var(--text-muted);">Pengumuman Kelulusan</span>
+                  <strong>5 Juli 2026</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                  <span style="color: var(--text-muted);">Daftar Ulang</span>
+                  <strong>6 – 10 Juli 2026</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Alur Pendaftaran -->
+          <div style="margin-bottom: 48px;">
+            <h2 style="font-size: 22px; font-weight: 800; margin-bottom: 6px; text-align: center;">4 Langkah Mudah Pendaftaran</h2>
+            <p style="color: var(--text-muted); text-align: center; margin-bottom: 28px;">Ikuti prosedur resmi tanpa perlu antre fisik di sekolah</p>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px;">
+              <div class="card">
+                <div style="width: 38px; height: 38px; background: var(--primary-soft); color: var(--primary); font-weight: 800; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">1</div>
+                <h3 style="font-size: 16px; margin-bottom: 6px;">Buat Akun</h3>
+                <p style="font-size: 13px; color: var(--text-muted);">Registrasi menggunakan NISN, email, dan kata sandi calon siswa.</p>
+              </div>
+              <div class="card">
+                <div style="width: 38px; height: 38px; background: var(--primary-soft); color: var(--primary); font-weight: 800; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">2</div>
+                <h3 style="font-size: 16px; margin-bottom: 6px;">Lengkapi Formulir</h3>
+                <p style="font-size: 13px; color: var(--text-muted);">Isi biodata, data orang tua/wali, data sekolah asal SD/MI, serta unggah berkas.</p>
+              </div>
+              <div class="card">
+                <div style="width: 38px; height: 38px; background: var(--primary-soft); color: var(--primary); font-weight: 800; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">3</div>
+                <h3 style="font-size: 16px; margin-bottom: 6px;">Verifikasi Panitia</h3>
+                <p style="font-size: 13px; color: var(--text-muted);">Panitia memeriksa berkas. Jika ada kekurangan, calon siswa dapat merevisi.</p>
+              </div>
+              <div class="card">
+                <div style="width: 38px; height: 38px; background: var(--primary-soft); color: var(--primary); font-weight: 800; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">4</div>
+                <h3 style="font-size: 16px; margin-bottom: 6px;">Pengumuman & Bukti</h3>
+                <p style="font-size: 13px; color: var(--text-muted);">Cetak bukti pendaftaran dan pantau pengumuman kelulusan di dashboard.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Persyaratan Berkas -->
+          <div class="card" style="margin-bottom: 40px; background: #fff;">
+            <div class="card-title">📄 Berkas Dokumen yang Wajib Disiapkan</div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-top: 12px;">
+              <div style="padding: 12px; background: var(--bg); border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                <strong>1. Kartu Keluarga (KK)</strong>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Format PDF/JPG, maks 2 MB. Memastikan domisili dan NIK valid.</div>
+              </div>
+              <div style="padding: 12px; background: var(--bg); border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                <strong>2. Akta Kelahiran</strong>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Format PDF/JPG, maks 2 MB. Untuk verifikasi usia dan tanggal lahir.</div>
+              </div>
+              <div style="padding: 12px; background: var(--bg); border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                <strong>3. Pasfoto Resmi 3x4</strong>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Format JPG/PNG, maks 2 MB. Latar belakang merah atau biru rapi.</div>
+              </div>
+              <div style="padding: 12px; background: var(--bg); border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                <strong>4. Ijazah / SKL SD/MI</strong>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Format PDF/JPG, maks 2 MB. Bila ijazah belum keluar, gunakan SKL resmi.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Content Loading State -->
+        <div class="content-loading state-overlay" style="padding: 36px 32px;">
+          <div class="skeleton sk-title"></div>
+          <div class="skeleton sk-line" style="width: 70%;"></div>
+          <div class="skeleton sk-line" style="width: 50%;"></div>
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 32px;">
+            <div class="skeleton sk-card"></div>
+            <div class="skeleton sk-card"></div>
+            <div class="skeleton sk-card"></div>
+            <div class="skeleton sk-card"></div>
+          </div>
+        </div>
+
+        <!-- Content Error State -->
+        <div class="content-error state-overlay" style="padding: 36px 32px;">
+          <div class="error-banner">
+            <div>⚠️</div>
+            <div>
+              <strong>Gagal Memuat Informasi Pengumuman</strong>
+              <p style="font-size: 13px; margin-top: 4px;">Terjadi kendala jaringan saat mengambil data jadwal PPDB terbaru. Silakan muat ulang halaman.</p>
+              <button class="btn btn-outline btn-sm" style="margin-top: 8px;">Coba Muat Ulang</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==========================================
+           SCREEN 2: AUTENTIKASI (SISWA & ADMIN)
+           ========================================== -->
+      <div id="screen-auth" class="screen-view" style="display: none;">
+        <div class="screen-meta">
+          <div><strong>Area Autentikasi</strong> — Login & Registrasi Calon Siswa / Login Khusus Panitia</div>
+          <div class="screen-notes">Pemisahan alur publik (calon siswa) dan portal tertutup (panitia admin)</div>
+        </div>
+
+        <div style="padding: 40px 20px; display: flex; justify-content: center;">
+          <div class="card" style="width: 100%; max-width: 440px;">
+            <!-- Auth Role Tabs -->
+            <div style="display: flex; border-bottom: 2px solid var(--border); margin-bottom: 20px;">
+              <button id="auth-tab-siswa" class="btn" style="flex: 1; border-radius: 0; border-bottom: 2px solid var(--primary); color: var(--primary); background: transparent; font-weight: 700;" onclick="toggleAuthRole('siswa')">Calon Siswa</button>
+              <button id="auth-tab-admin" class="btn" style="flex: 1; border-radius: 0; border-bottom: 2px solid transparent; color: var(--text-muted); background: transparent;" onclick="toggleAuthRole('admin')">Panitia / Admin</button>
+            </div>
+
+            <!-- SISWA AUTH BOX -->
+            <div id="auth-box-siswa">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h2 id="auth-siswa-title" style="font-size: 20px; font-weight: 700;">Masuk Akun Siswa</h2>
+                <button id="auth-toggle-mode-btn" class="btn btn-outline btn-sm" onclick="toggleAuthMode()">Daftar Baru</button>
+              </div>
+
+              <!-- Form Login / Register -->
+              <div class="content-normal">
+                <div id="auth-field-nama" class="form-group" style="display: none;">
+                  <label class="form-label">Nama Lengkap Siswa <span class="req">*</span></label>
+                  <input type="text" class="form-input" placeholder="Masukkan nama sesuai Akta Kelahiran">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">NISN (Nomor Induk Siswa Nasional) <span class="req">*</span></label>
+                  <input type="text" class="form-input" placeholder="Contoh: 0081234567" maxlength="10">
+                  <div class="form-hint">10 digit angka resmi Kemdikbud/Kemenag</div>
+                </div>
+                <div id="auth-field-email" class="form-group" style="display: none;">
+                  <label class="form-label">Email Orang Tua / Siswa <span class="req">*</span></label>
+                  <input type="email" class="form-input" placeholder="alamat@email.com">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Kata Sandi <span class="req">*</span></label>
+                  <input type="password" class="form-input" placeholder="••••••••">
+                </div>
+                <div id="auth-field-konfirm" class="form-group" style="display: none;">
+                  <label class="form-label">Ulangi Kata Sandi <span class="req">*</span></label>
+                  <input type="password" class="form-input" placeholder="••••••••">
+                </div>
+
+                <button class="btn btn-primary" style="width: 100%; margin-top: 8px;" onclick="switchScreen('dashboard-siswa')">
+                  Masuk ke Dashboard Siswa →
+                </button>
+              </div>
+
+              <!-- Error State in Auth -->
+              <div class="content-error state-overlay">
+                <div class="error-banner" style="margin-bottom: 16px;">
+                  <div>⚠️</div>
+                  <div style="font-size: 13px;">NISN atau kata sandi tidak sesuai. Silakan periksa kembali.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ADMIN AUTH BOX -->
+            <div id="auth-box-admin" style="display: none;">
+              <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 6px;">Login Panitia PPDB</h2>
+              <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 18px;">Area terbatas untuk verifikator dan pengelola sekolah</p>
+              
+              <div class="form-group">
+                <label class="form-label">Email / NIP Panitia <span class="req">*</span></label>
+                <input type="text" class="form-input" value="panitia.ppdb@sekolah.sch.id">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Kata Sandi Petugas <span class="req">*</span></label>
+                <input type="password" class="form-input" value="password123">
+              </div>
+              <button class="btn btn-primary" style="width: 100%; margin-top: 8px;" onclick="switchScreen('dashboard-admin')">
+                Masuk ke Panel Admin →
+              </button>
+              <div style="font-size: 12px; color: var(--text-muted); text-align: center; margin-top: 14px;">
+                🔒 Akses akun admin dikelola langsung oleh administrator sekolah. Tidak ada pendaftaran publik untuk panitia.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==========================================
+           SCREEN 3: FORMULIR PENDAFTARAN SISWA (5 STEP)
+           ========================================== -->
+      <div id="screen-formulir" class="screen-view" style="display: none;">
+        <div class="screen-meta">
+          <div><strong>Area Calon Siswa</strong> — Formulir Lengkap Pendaftaran Daring</div>
+          <div class="screen-notes">Multi-step form terstruktur: Biodata, Orang Tua, Sekolah Asal, Dokumen, dan Konfirmasi</div>
+        </div>
+
+        <div style="max-width: 860px; margin: 32px auto; padding: 0 20px;">
+          <!-- Multi-step Indicator -->
+          <div class="stepper">
+            <div id="step-nav-1" class="step-item active">
+              <div class="step-circle">1</div>
+              <div class="step-title">Biodata Siswa</div>
+            </div>
+            <div id="step-nav-2" class="step-item">
+              <div class="step-circle">2</div>
+              <div class="step-title">Data Orang Tua</div>
+            </div>
+            <div id="step-nav-3" class="step-item">
+              <div class="step-circle">3</div>
+              <div class="step-title">Sekolah Asal</div>
+            </div>
+            <div id="step-nav-4" class="step-item">
+              <div class="step-circle">4</div>
+              <div class="step-title">Unggah Berkas</div>
+            </div>
+            <div id="step-nav-5" class="step-item">
+              <div class="step-circle">5</div>
+              <div class="step-title">Ringkasan & Kirim</div>
+            </div>
+          </div>
+
+          <!-- Step 1: Biodata -->
+          <div id="step-tab-1" class="card">
+            <div class="card-title">Langkah 1: Biodata Calon Siswa</div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+              <div class="form-group">
+                <label class="form-label">Nomor Induk Siswa Nasional (NISN) <span class="req">*</span></label>
+                <input type="text" class="form-input" value="0098765432" readonly style="background: #f8faf9;">
+                <div class="form-hint">Terkunci sesuai akun login</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Nomor Induk Kependudukan (NIK) <span class="req">*</span></label>
+                <input type="text" class="form-input" placeholder="16 digit sesuai Kartu Keluarga" maxlength="16">
+              </div>
+              <div class="form-group" style="grid-column: 1 / -1;">
+                <label class="form-label">Nama Lengkap Siswa <span class="req">*</span></label>
+                <input type="text" class="form-input" placeholder="Contoh: Muhammad Rayhan Pratama">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Tempat Lahir <span class="req">*</span></label>
+                <input type="text" class="form-input" placeholder="Kota / Kabupaten">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Tanggal Lahir <span class="req">*</span></label>
+                <input type="date" class="form-input" value="2013-05-14">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Jenis Kelamin <span class="req">*</span></label>
+                <select class="form-select">
+                  <option value="">-- Pilih Jenis Kelamin --</option>
+                  <option value="L" selected>Laki-laki</option>
+                  <option value="P">Perempuan</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Agama <span class="req">*</span></label>
+                <select class="form-select">
+                  <option value="Islam" selected>Islam</option>
+                  <option value="Kristen">Kristen</option>
+                  <option value="Katolik">Katolik</option>
+                  <option value="Hindu">Hindu</option>
+                  <option value="Buddha">Buddha</option>
+                  <option value="Konghucu">Konghucu</option>
+                </select>
+              </div>
+              <div class="form-group" style="grid-column: 1 / -1;">
+                <label class="form-label">Alamat Tempat Tinggal Lengkap <span class="req">*</span></label>
+                <textarea class="form-textarea" rows="3" placeholder="Nama Jalan, RT/RW, Dusun, Kelurahan/Desa, Kecamatan"></textarea>
+              </div>
+            </div>
+            <div style="display: flex; justify-content: flex-end; margin-top: 16px;">
+              <button class="btn btn-primary" onclick="goToStep(2)">Lanjut: Data Orang Tua →</button>
+            </div>
+          </div>
+
+          <!-- Step 2: Data Orang Tua -->
+          <div id="step-tab-2" class="card" style="display: none;">
+            <div class="card-title">Langkah 2: Data Orang Tua / Wali</div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+              <div class="form-group">
+                <label class="form-label">Nama Ayah Kandung <span class="req">*</span></label>
+                <input type="text" class="form-input" placeholder="Nama lengkap ayah">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Pekerjaan Ayah <span class="req">*</span></label>
+                <input type="text" class="form-input" placeholder="Contoh: Wiraswasta / Karyawan / PNS">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Nama Ibu Kandung <span class="req">*</span></label>
+                <input type="text" class="form-input" placeholder="Nama lengkap ibu">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Pekerjaan Ibu <span class="req">*</span></label>
+                <input type="text" class="form-input" placeholder="Contoh: Ibu Rumah Tangga / Guru">
+              </div>
+              <div class="form-group" style="grid-column: 1 / -1;">
+                <label class="form-label">Nomor WhatsApp / HP Orang Tua yang Aktif <span class="req">*</span></label>
+                <input type="tel" class="form-input" placeholder="Contoh: 081234567890">
+                <div class="form-hint">Digunakan panitia untuk konfirmasi jika berkas membutuhkan revisi</div>
+              </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 16px;">
+              <button class="btn btn-outline" onclick="goToStep(1)">← Kembali</button>
+              <button class="btn btn-primary" onclick="goToStep(3)">Lanjut: Sekolah Asal →</button>
+            </div>
+          </div>
+
+          <!-- Step 3: Sekolah Asal -->
+          <div id="step-tab-3" class="card" style="display: none;">
+            <div class="card-title">Langkah 3: Data Sekolah Asal (SD / MI)</div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+              <div class="form-group">
+                <label class="form-label">Nama Sekolah Asal SD/MI <span class="req">*</span></label>
+                <input type="text" class="form-input" placeholder="Contoh: MIN 1 Kota / SDN 04 Maju">
+              </div>
+              <div class="form-group">
+                <label class="form-label">NPSN Sekolah Asal</label>
+                <input type="text" class="form-input" placeholder="8 digit NPSN jika diketahui">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Tahun Lulus <span class="req">*</span></label>
+                <select class="form-select">
+                  <option value="2026" selected>2026 (Lulusan Baru)</option>
+                  <option value="2025">2025</option>
+                  <option value="2024">2024</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Nilai Rata-rata Ujian / Raport</label>
+                <input type="number" step="0.01" class="form-input" placeholder="Contoh: 87.50">
+              </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 16px;">
+              <button class="btn btn-outline" onclick="goToStep(2)">← Kembali</button>
+              <button class="btn btn-primary" onclick="goToStep(4)">Lanjut: Unggah Dokumen →</button>
+            </div>
+          </div>
+
+          <!-- Step 4: Unggah Dokumen -->
+          <div id="step-tab-4" class="card" style="display: none;">
+            <div class="card-title">Langkah 4: Unggah Berkas Persyaratan (PDF/JPG/PNG, Maks. 2MB)</div>
+            
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+              <!-- File 1: KK -->
+              <div style="border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <div>
+                    <strong>1. Kartu Keluarga (KK) <span class="req">*</span></strong>
+                    <div style="font-size: 12px; color: var(--text-muted);">Format PDF atau JPG/PNG, maksimal 2 MB</div>
+                  </div>
+                  <span class="badge badge-accepted">✓ Sudah Terunggah</span>
+                </div>
+                <div style="display: flex; align-items: center; justify-content: space-between; background: var(--bg); padding: 8px 12px; border-radius: 6px;">
+                  <span style="font-size: 13px;">📄 KK_Rayhan_Pratama.pdf (1.2 MB)</span>
+                  <button class="btn btn-outline btn-sm" style="color: var(--error);">Ganti</button>
+                </div>
+              </div>
+
+              <!-- File 2: Akta -->
+              <div style="border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <div>
+                    <strong>2. Akta Kelahiran <span class="req">*</span></strong>
+                    <div style="font-size: 12px; color: var(--text-muted);">Format PDF atau JPG/PNG, maksimal 2 MB</div>
+                  </div>
+                  <span class="badge badge-draft">Belum Diunggah</span>
+                </div>
+                <div class="upload-box">
+                  <div class="upload-icon">📤</div>
+                  <div style="font-weight: 600; font-size: 13px;">Klik atau seret file Akta Kelahiran ke sini</div>
+                  <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">PDF, JPG, atau PNG (Maks 2 MB)</div>
+                </div>
+              </div>
+
+              <!-- File 3: Pasfoto -->
+              <div style="border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <div>
+                    <strong>3. Pasfoto 3x4 Resmi <span class="req">*</span></strong>
+                    <div style="font-size: 12px; color: var(--text-muted);">Format JPG atau PNG, maksimal 2 MB</div>
+                  </div>
+                  <span class="badge badge-accepted">✓ Sudah Terunggah</span>
+                </div>
+                <div style="display: flex; align-items: center; justify-content: space-between; background: var(--bg); padding: 8px 12px; border-radius: 6px;">
+                  <span style="font-size: 13px;">🖼️ Pasfoto_Rayhan_3x4.jpg (450 KB)</span>
+                  <button class="btn btn-outline btn-sm" style="color: var(--error);">Ganti</button>
+                </div>
+              </div>
+
+              <!-- File 4: SKL / Ijazah -->
+              <div style="border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <div>
+                    <strong>4. Ijazah / Surat Keterangan Lulus (SKL) SD/MI <span class="req">*</span></strong>
+                    <div style="font-size: 12px; color: var(--text-muted);">Bila ijazah belum terbit, dapat digantikan SKL resmi sekolah</div>
+                  </div>
+                  <span class="badge badge-accepted">✓ Sudah Terunggah</span>
+                </div>
+                <div style="display: flex; align-items: center; justify-content: space-between; background: var(--bg); padding: 8px 12px; border-radius: 6px;">
+                  <span style="font-size: 13px;">📄 SKL_Sementara_MIN1.pdf (820 KB)</span>
+                  <button class="btn btn-outline btn-sm" style="color: var(--error);">Ganti</button>
+                </div>
+              </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+              <button class="btn btn-outline" onclick="goToStep(3)">← Kembali</button>
+              <button class="btn btn-primary" onclick="goToStep(5)">Lanjut: Ringkasan & Kirim →</button>
+            </div>
+          </div>
+
+          <!-- Step 5: Resume & Kirim -->
+          <div id="step-tab-5" class="card" style="display: none;">
+            <div class="card-title">Langkah 5: Konfirmasi & Kirim Pendaftaran</div>
+            <p style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 18px;">
+              Mohon periksa seluruh data dengan teliti. Setelah dikirim, formulir akan masuk ke tahap verifikasi oleh panitia dan data utama tidak dapat diedit sembarangan tanpa instruksi revisi.
+            </p>
+
+            <div style="background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px; margin-bottom: 20px; font-size: 13.5px;">
+              <div style="display: grid; grid-template-columns: 140px 1fr; gap: 8px; margin-bottom: 8px;">
+                <span style="color: var(--text-muted);">Nama Lengkap:</span>
+                <strong>Muhammad Rayhan Pratama</strong>
+              </div>
+              <div style="display: grid; grid-template-columns: 140px 1fr; gap: 8px; margin-bottom: 8px;">
+                <span style="color: var(--text-muted);">NISN:</span>
+                <strong>0098765432</strong>
+              </div>
+              <div style="display: grid; grid-template-columns: 140px 1fr; gap: 8px; margin-bottom: 8px;">
+                <span style="color: var(--text-muted);">Sekolah Asal:</span>
+                <strong>MIN 1 Kota Mandiri</strong>
+              </div>
+              <div style="display: grid; grid-template-columns: 140px 1fr; gap: 8px; margin-bottom: 8px;">
+                <span style="color: var(--text-muted);">Status Dokumen:</span>
+                <span style="color: var(--success); font-weight: 600;">4 dari 4 berkas lengkap</span>
+              </div>
+            </div>
+
+            <div style="display: flex; align-items: flex-start; gap: 10px; margin-bottom: 20px;">
+              <input type="checkbox" id="chk-pernyataan" checked style="margin-top: 4px;">
+              <label for="chk-pernyataan" style="font-size: 13px;">
+                Saya menyatakan dengan sungguh-sungguh bahwa seluruh data dan dokumen yang saya unggah adalah benar dan sah. Apabila terdapat kekeliruan atau pemalsuan data, saya bersedia menerima sanksi pembatalan kelulusan.
+              </label>
+            </div>
+
+            <div style="display: flex; justify-content: space-between;">
+              <button class="btn btn-outline" onclick="goToStep(4)">← Periksa Berkas</button>
+              <button class="btn btn-primary" onclick="submitRegistration()">Kirim Pendaftaran Sekarang ✓</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==========================================
+           SCREEN 4: DASHBOARD CALON SISWA
+           ========================================== -->
+      <div id="screen-dashboard-siswa" class="screen-view" style="display: none;">
+        <div class="screen-meta">
+          <div><strong>Area Calon Siswa</strong> — Dashboard Status Pendaftaran & Bukti Registrasi</div>
+          <div class="screen-notes">Pemantauan 7 status pendaftaran, catatan perbaikan revisi, bukti pendaftaran, & pengumuman</div>
+        </div>
+
+        <header class="wire-header">
+          <div class="brand">
+            <span>PPDB Online</span>
+            <span class="brand-tag">Portal Siswa</span>
+          </div>
+          <div class="wire-nav">
+            <span>Halo, <strong>Rayhan Pratama</strong> (NISN: 0098765432)</span>
+            <button class="btn btn-outline btn-sm" onclick="switchScreen('auth', 'siswa')">Keluar</button>
+          </div>
+        </header>
+
+        <div style="max-width: 980px; margin: 28px auto; padding: 0 20px;">
+          <!-- Status Selector Bar (Wireframe Testing Tool) -->
+          <div style="background: #e6f4ea; border: 1px dashed var(--primary); border-radius: var(--radius-sm); padding: 10px 16px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+            <span style="font-size: 12px; font-weight: 700; color: var(--primary);">⚙️ Simulasi Status Pendaftaran PRD:</span>
+            <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+              <button class="btn btn-outline btn-sm" style="font-size: 11px; padding: 3px 8px;" onclick="setApplicantStatus('Draft')">Draft</button>
+              <button class="btn btn-outline btn-sm" style="font-size: 11px; padding: 3px 8px;" onclick="setApplicantStatus('Submitted')">Submitted</button>
+              <button class="btn btn-outline btn-sm" style="font-size: 11px; padding: 3px 8px;" onclick="setApplicantStatus('Under Review')">Under Review</button>
+              <button class="btn btn-outline btn-sm" style="font-size: 11px; padding: 3px 8px;" onclick="setApplicantStatus('Needs Revision')">Needs Revision</button>
+              <button class="btn btn-outline btn-sm" style="font-size: 11px; padding: 3px 8px;" onclick="setApplicantStatus('Verified')">Verified</button>
+              <button class="btn btn-outline btn-sm" style="font-size: 11px; padding: 3px 8px;" onclick="setApplicantStatus('Accepted')">Accepted</button>
+              <button class="btn btn-outline btn-sm" style="font-size: 11px; padding: 3px 8px;" onclick="setApplicantStatus('Not Accepted')">Not Accepted</button>
+            </div>
+          </div>
+
+          <!-- STATUS BANNER UTAMA -->
+          <div class="card" style="margin-bottom: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 14px;">
+              <div>
+                <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">Nomor Pendaftaran: <strong>PPDB-2026-00412</strong></div>
+                <h2 style="font-size: 22px; font-weight: 800; color: var(--text);">Status Saat Ini:</h2>
+              </div>
+              <div id="applicant-badge-container">
+                <span class="badge badge-under-review" style="font-size: 14px; padding: 6px 14px;">
+                  <span class="dot"></span> Under Review (Sedang Diverifikasi)
+                </span>
+              </div>
+            </div>
+
+            <!-- Dynamic status message -->
+            <p id="applicant-status-desc" style="font-size: 14px; margin-top: 14px; color: var(--text-muted);">
+              Berkas Anda telah diterima dan sedang dalam antrean verifikasi administratif oleh panitia sekolah. Harap periksa status ini secara berkala.
+            </p>
+          </div>
+
+          <!-- REVISION ALERT BOX (Tampil saat status Needs Revision) -->
+          <div id="revision-alert-box" class="card" style="display: none; background: #fff7ed; border-color: #fed7aa; margin-bottom: 24px;">
+            <div style="display: flex; gap: 14px; align-items: flex-start;">
+              <div style="font-size: 24px;">⚠️</div>
+              <div style="flex: 1;">
+                <strong style="color: #9a3412; font-size: 15px;">Catatan Perbaikan dari Panitia Verifikator:</strong>
+                <p style="font-size: 13.5px; color: #7c2d12; margin: 6px 0 14px;">
+                  "Foto Kartu Keluarga agak buram pada bagian NIK orang tua. Mohon unggah ulang scan atau foto KK yang lebih jelas dan terbaca."
+                </p>
+                <button class="btn btn-primary btn-sm" onclick="switchScreen('formulir')">Perbaiki & Unggah Ulang Berkas →</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- SELECTION RESULT BOX (Tampil saat status Accepted / Not Accepted) -->
+          <div id="result-box-accepted" class="card" style="display: none; background: #f0fdf4; border-color: #bbf7d0; margin-bottom: 24px;">
+            <div style="display: flex; gap: 14px; align-items: flex-start;">
+              <div style="font-size: 28px;">🎉</div>
+              <div style="flex: 1;">
+                <h3 style="color: #166534; font-size: 18px; font-weight: 800;">SELAMAT! ANDA DINYATAKAN DITERIMA</h3>
+                <p style="font-size: 13.5px; color: #14532d; margin: 6px 0 14px;">
+                  Berdasarkan hasil rapat penetapan seleksi PPDB Tahun Ajaran 2026/2027, Anda diterima di MTs/SMP Negeri 1. Silakan unduh Surat Keterangan Diterima dan lakukan daftar ulang sesuai jadwal.
+                </p>
+                <div style="display: flex; gap: 10px;">
+                  <button class="btn btn-primary btn-sm">Unduh SK Diterima (PDF)</button>
+                  <button class="btn btn-outline btn-sm">Jadwal Daftar Ulang</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- BUKTI PENDAFTARAN CETAK -->
+          <div class="card">
+            <div class="card-title">
+              <span>Bukti Tanda Pendaftaran Daring</span>
+              <button class="btn btn-outline btn-sm" onclick="alert('Simulasi mencetak / ekspor bukti pendaftaran PDF resmi.')">🖨️ Cetak Bukti Pendaftaran</button>
+            </div>
+            
+            <div class="print-sheet">
+              <div style="text-align: center; border-bottom: 2px solid #173126; padding-bottom: 12px; margin-bottom: 16px;">
+                <h3 style="font-size: 16px; font-weight: 800; text-transform: uppercase;">PANITIA PPDB MTS/SMP NEGERI 1</h3>
+                <div style="font-size: 12px; color: var(--text-muted);">Tanda Bukti Registrasi Peserta Didik Baru Daring 2026/2027</div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 120px; gap: 16px; margin-bottom: 16px;">
+                <div style="font-size: 13px; line-height: 1.8;">
+                  <div>No. Pendaftaran : <strong>PPDB-2026-00412</strong></div>
+                  <div>NISN : <strong>0098765432</strong></div>
+                  <div>Nama Siswa : <strong>Muhammad Rayhan Pratama</strong></div>
+                  <div>Asal Sekolah : <strong>MIN 1 Kota Mandiri</strong></div>
+                  <div>Waktu Daftar : <strong>12 Mei 2026, 10:45 WIB</strong></div>
+                </div>
+                <div style="border: 1px dashed var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px; background: #fafcfb;">
+                  <div style="font-size: 32px;">📱</div>
+                  <span style="font-size: 10px; color: var(--text-muted); text-align: center; margin-top: 4px;">QR Verifikasi</span>
+                </div>
+              </div>
+
+              <div style="border-top: 1px solid var(--border); padding-top: 10px; font-size: 11px; color: var(--text-muted); text-align: center;">
+                Simpan lembar ini sebagai tanda bukti pendaftaran yang sah. Informasi lebih lanjut dapat diakses di portal resmi PPDB.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==========================================
+           SCREEN 5: DASHBOARD ADMIN
+           ========================================== -->
+      <div id="screen-dashboard-admin" class="screen-view" style="display: none;">
+        <div class="screen-meta">
+          <div><strong>Area Admin/Panitia</strong> — Dashboard Statistik & Daftar Seluruh Pendaftar</div>
+          <div class="screen-notes">Pemantauan metrik pendaftar, tabel data, filter jalur/status, dan pencarian cepat</div>
+        </div>
+
+        <div class="admin-layout">
+          <!-- Sidebar Nav Admin -->
+          <div class="admin-sidebar">
+            <div style="font-weight: 800; color: var(--primary); padding: 8px 14px; margin-bottom: 8px; font-size: 16px;">
+              Admin PPDB
+            </div>
+            <a class="admin-menu-item active" onclick="switchScreen('dashboard-admin')">📊 Dashboard & Data</a>
+            <a class="admin-menu-item" onclick="switchScreen('verifikasi-admin')">🔍 Verifikasi Berkas</a>
+            <a class="admin-menu-item" onclick="switchScreen('seleksi-admin')">⚖️ Seleksi & Hasil</a>
+            <a class="admin-menu-item" onclick="switchScreen('laporan-admin')">📑 Laporan & Ekspor</a>
+            <div style="margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border);">
+              <a class="admin-menu-item" onclick="switchScreen('auth', 'admin')" style="color: var(--error);">🚪 Keluar Admin</a>
+            </div>
+          </div>
+
+          <!-- Main Admin Content -->
+          <div class="admin-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+              <div>
+                <h1 style="font-size: 24px; font-weight: 800;">Ringkasan Pendaftar PPDB</h1>
+                <p style="font-size: 13px; color: var(--text-muted);">Data real-time tahun ajaran 2026/2027</p>
+              </div>
+              <button class="btn btn-primary btn-sm" onclick="switchScreen('laporan-admin')">Unduh Laporan</button>
+            </div>
+
+            <!-- Metric Cards -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 28px;">
+              <div class="card" style="padding: 16px;">
+                <div style="font-size: 12px; color: var(--text-muted); font-weight: 600;">TOTAL PENDAFTAR</div>
+                <div style="font-size: 28px; font-weight: 800; color: var(--text); margin-top: 4px;">428</div>
+                <div style="font-size: 11px; color: var(--primary); margin-top: 4px;">+18 hari ini</div>
+              </div>
+              <div class="card" style="padding: 16px;">
+                <div style="font-size: 12px; color: var(--warning); font-weight: 600;">MENUNGGU VERIFIKASI</div>
+                <div style="font-size: 28px; font-weight: 800; color: var(--warning); margin-top: 4px;">64</div>
+                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Perlu ditinjau</div>
+              </div>
+              <div class="card" style="padding: 16px;">
+                <div style="font-size: 12px; color: #ea580c; font-weight: 600;">PERLU PERBAIKAN</div>
+                <div style="font-size: 28px; font-weight: 800; color: #ea580c; margin-top: 4px;">12</div>
+                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Menunggu unggah ulang</div>
+              </div>
+              <div class="card" style="padding: 16px;">
+                <div style="font-size: 12px; color: var(--primary); font-weight: 600;">TERVERIFIKASI</div>
+                <div style="font-size: 28px; font-weight: 800; color: var(--primary); margin-top: 4px;">312</div>
+                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Berkas lengkap</div>
+              </div>
+              <div class="card" style="padding: 16px;">
+                <div style="font-size: 12px; color: var(--success); font-weight: 600;">DITERIMA</div>
+                <div style="font-size: 28px; font-weight: 800; color: var(--success); margin-top: 4px;">180</div>
+                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Kuota 216 siswa</div>
+              </div>
+            </div>
+
+            <!-- Table Filters & Search -->
+            <div class="card" style="padding: 16px; margin-bottom: 20px;">
+              <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: space-between;">
+                <input type="text" class="form-input" placeholder="🔍 Cari nama siswa, NISN, atau no pendaftaran..." style="max-width: 340px;">
+                <div style="display: flex; gap: 8px;">
+                  <select class="form-select" style="width: auto;">
+                    <option value="">Semua Status</option>
+                    <option value="Under Review">Under Review</option>
+                    <option value="Needs Revision">Needs Revision</option>
+                    <option value="Verified">Verified</option>
+                    <option value="Accepted">Accepted</option>
+                  </select>
+                  <select class="form-select" style="width: auto;">
+                    <option value="">Semua Jalur</option>
+                    <option value="Reguler">Reguler</option>
+                    <option value="Prestasi">Prestasi</option>
+                    <option value="Afirmasi">Afirmasi</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Normal Data Table -->
+            <div class="content-normal data-table-wrapper">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>No. Daftar</th>
+                    <th>Nama Calon Siswa</th>
+                    <th>NISN</th>
+                    <th>Asal Sekolah</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>PPDB-2026-00412</strong></td>
+                    <td>Muhammad Rayhan Pratama</td>
+                    <td>0098765432</td>
+                    <td>MIN 1 Kota Mandiri</td>
+                    <td><span class="badge badge-under-review"><span class="dot"></span> Under Review</span></td>
+                    <td>
+                      <button class="btn btn-outline btn-sm" onclick="switchScreen('verifikasi-admin')">Verifikasi Berkas →</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><strong>PPDB-2026-00411</strong></td>
+                    <td>Aisyah Nur Rahmah</td>
+                    <td>0091122334</td>
+                    <td>SDN 02 Pagi</td>
+                    <td><span class="badge badge-needs-revision"><span class="dot"></span> Needs Revision</span></td>
+                    <td>
+                      <button class="btn btn-outline btn-sm" onclick="switchScreen('verifikasi-admin')">Detail →</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><strong>PPDB-2026-00410</strong></td>
+                    <td>Fahri Ahmad Zaki</td>
+                    <td>0089988776</td>
+                    <td>SD IT Insan Cendekia</td>
+                    <td><span class="badge badge-verified"><span class="dot"></span> Verified</span></td>
+                    <td>
+                      <button class="btn btn-outline btn-sm" onclick="switchScreen('verifikasi-admin')">Detail →</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><strong>PPDB-2026-00409</strong></td>
+                    <td>Nabila Shafa Putri</td>
+                    <td>0093344556</td>
+                    <td>SDN 10 Cempaka</td>
+                    <td><span class="badge badge-accepted"><span class="dot"></span> Accepted</span></td>
+                    <td>
+                      <button class="btn btn-outline btn-sm" onclick="switchScreen('verifikasi-admin')">Detail →</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Empty State for Admin Table -->
+            <div class="empty-state-box content-empty">
+              <div class="empty-icon">📭</div>
+              <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 6px;">Tidak Ada Data Pendaftar</h3>
+              <p style="font-size: 13px; color: var(--text-muted); max-width: 400px; margin-bottom: 16px;">
+                Belum ada calon siswa yang mendaftar atau tidak ditemukan data yang cocok dengan kriteria pencarian saat ini.
+              </p>
+              <button class="btn btn-outline btn-sm" onclick="setScreenState('normal')">Reset Filter Pencarian</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==========================================
+           SCREEN 6: PANEL VERIFIKASI DOKUMEN (ADMIN)
+           ========================================== -->
+      <div id="screen-verifikasi-admin" class="screen-view" style="display: none;">
+        <div class="screen-meta">
+          <div><strong>Area Admin/Panitia</strong> — Verifikasi Dokumen & Data Siswa</div>
+          <div class="screen-notes">Pemeriksaan berdampingan: Data form pendaftar vs berkas dokumen fisik & input catatan revisi</div>
+        </div>
+
+        <div class="admin-layout">
+          <div class="admin-sidebar">
+            <a class="admin-menu-item" onclick="switchScreen('dashboard-admin')">← Kembali ke Tabel</a>
+            <div style="font-size: 12px; color: var(--text-muted); padding: 12px 14px 4px; font-weight: 700;">ANTREAN VERIFIKASI:</div>
+            <a class="admin-menu-item active">PPDB-2026-00412 (Rayhan)</a>
+            <a class="admin-menu-item">PPDB-2026-00411 (Aisyah)</a>
+            <a class="admin-menu-item">PPDB-2026-00408 (Budi)</a>
+          </div>
+
+          <div class="admin-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+              <div>
+                <span class="badge badge-under-review" style="margin-bottom: 6px;">Menunggu Verifikasi</span>
+                <h2 style="font-size: 22px; font-weight: 800;">Muhammad Rayhan Pratama</h2>
+                <div style="font-size: 13px; color: var(--text-muted);">No: PPDB-2026-00412 • NISN: 0098765432 • Sekolah: MIN 1 Kota Mandiri</div>
+              </div>
+              <div style="display: flex; gap: 10px;">
+                <button class="btn btn-danger btn-sm" onclick="alert('Form dialog penolakan pendaftaran dengan alasan spesifik.')">Tolak</button>
+                <button class="btn btn-outline btn-sm" onclick="toggleRevisionNoteBox()" style="color: var(--warning); border-color: var(--warning);">Minta Perbaikan (Revisi)</button>
+                <button class="btn btn-primary btn-sm" onclick="alert('Pendaftaran berhasil diverifikasi!')">✓ Setujui Verifikasi</button>
+              </div>
+            </div>
+
+            <!-- Revision Notes Input Box (Toggleable) -->
+            <div id="admin-revision-input-box" class="card" style="margin-bottom: 20px; background: #fffbeb; border: 1px solid #fde68a; display: none;">
+              <div class="card-title" style="color: #92400e;">📝 Tulis Catatan Perbaikan Berkas untuk Siswa</div>
+              <textarea class="form-textarea" rows="3" placeholder="Contoh: Berkas Kartu Keluarga tidak terbaca, mohon unggah scan asli bukan fotokopi buram..."></textarea>
+              <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px;">
+                <button class="btn btn-outline btn-sm" onclick="toggleRevisionNoteBox()">Batal</button>
+                <button class="btn btn-primary btn-sm" style="background: #d97706;" onclick="alert('Catatan perbaikan telah dikirim ke calon siswa.'); toggleRevisionNoteBox();">Kirim Instruksi Revisi</button>
+              </div>
+            </div>
+
+            <!-- 2 Column Verification View -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+              <!-- Left Column: Form Biodata -->
+              <div class="card">
+                <div class="card-title">📋 Data Formulir Siswa</div>
+                <div style="display: flex; flex-direction: column; gap: 10px; font-size: 13.5px;">
+                  <div><span style="color: var(--text-muted);">NIK Siswa:</span> <strong>3201123456780001</strong></div>
+                  <div><span style="color: var(--text-muted);">Tempat/Tgl Lahir:</span> <strong>Jakarta, 14 Mei 2013 (13 Tahun)</strong></div>
+                  <div><span style="color: var(--text-muted);">Jenis Kelamin:</span> <strong>Laki-laki</strong></div>
+                  <div><span style="color: var(--text-muted);">Agama:</span> <strong>Islam</strong></div>
+                  <div><span style="color: var(--text-muted);">Nama Ayah:</span> <strong>Ahmad Pratama</strong></div>
+                  <div><span style="color: var(--text-muted);">Nama Ibu:</span> <strong>Siti Rahayu</strong></div>
+                  <div><span style="color: var(--text-muted);">No. WhatsApp Ortu:</span> <strong>081298765432</strong></div>
+                  <div><span style="color: var(--text-muted);">Alamat:</span> <strong>Jl. Melati No. 15, RT 02/RW 04, Kelurahan Harapan Jaya</strong></div>
+                </div>
+              </div>
+
+              <!-- Right Column: Document Viewer -->
+              <div class="card">
+                <div class="card-title">📂 Berkas Unggahan Terlampir</div>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                  <div style="border: 1px solid var(--border); padding: 12px; border-radius: var(--radius-sm); display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                      <strong>Kartu Keluarga (KK)</strong>
+                      <div style="font-size: 12px; color: var(--text-muted);">KK_Rayhan_Pratama.pdf (1.2 MB)</div>
+                    </div>
+                    <button class="btn btn-outline btn-sm">Buka Preview</button>
+                  </div>
+                  <div style="border: 1px solid var(--border); padding: 12px; border-radius: var(--radius-sm); display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                      <strong>Akta Kelahiran</strong>
+                      <div style="font-size: 12px; color: var(--text-muted);">Akta_Rayhan.jpg (800 KB)</div>
+                    </div>
+                    <button class="btn btn-outline btn-sm">Buka Preview</button>
+                  </div>
+                  <div style="border: 1px solid var(--border); padding: 12px; border-radius: var(--radius-sm); display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                      <strong>Pasfoto 3x4</strong>
+                      <div style="font-size: 12px; color: var(--text-muted);">Foto_Rayhan.jpg (450 KB)</div>
+                    </div>
+                    <button class="btn btn-outline btn-sm">Buka Preview</button>
+                  </div>
+                  <div style="border: 1px solid var(--border); padding: 12px; border-radius: var(--radius-sm); display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                      <strong>Ijazah / SKL SD/MI</strong>
+                      <div style="font-size: 12px; color: var(--text-muted);">SKL_MIN1.pdf (820 KB)</div>
+                    </div>
+                    <button class="btn btn-outline btn-sm">Buka Preview</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==========================================
+           SCREEN 7: SELEKSI & PENGUMUMAN (ADMIN)
+           ========================================== -->
+      <div id="screen-seleksi-admin" class="screen-view" style="display: none;">
+        <div class="screen-meta">
+          <div><strong>Area Admin/Panitia</strong> — Pengelolaan Seleksi & Publikasi Pengumuman</div>
+          <div class="screen-notes">Penetapan status kelulusan (Accepted/Not Accepted) dan kontrol status rilis pengumuman</div>
+        </div>
+
+        <div class="admin-layout">
+          <div class="admin-sidebar">
+            <a class="admin-menu-item" onclick="switchScreen('dashboard-admin')">📊 Dashboard & Data</a>
+            <a class="admin-menu-item" onclick="switchScreen('verifikasi-admin')">🔍 Verifikasi Berkas</a>
+            <a class="admin-menu-item active" onclick="switchScreen('seleksi-admin')">⚖️ Seleksi & Hasil</a>
+            <a class="admin-menu-item" onclick="switchScreen('laporan-admin')">📑 Laporan & Ekspor</a>
+          </div>
+
+          <div class="admin-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+              <div>
+                <h1 style="font-size: 24px; font-weight: 800;">Penetapan Hasil Seleksi PPDB</h1>
+                <p style="font-size: 13px; color: var(--text-muted);">Total Berkas Terverifikasi: 312 Calon Siswa • Kuota Tersedia: 216 Siswa</p>
+              </div>
+
+              <!-- Status Publikasi -->
+              <div style="display: flex; align-items: center; gap: 12px; background: #fff; padding: 8px 16px; border: 1px solid var(--border); border-radius: var(--radius-md);">
+                <div style="font-size: 13px;">
+                  Status Pengumuman: <strong id="publish-status-label" style="color: var(--warning);">DRAFT (Belum Diterbitkan)</strong>
+                </div>
+                <button id="publish-toggle-btn" class="btn btn-primary btn-sm" onclick="togglePublishAnnouncement()">Terbitkan Pengumuman</button>
+              </div>
+            </div>
+
+            <!-- Table Penilaian & Penetapan -->
+            <div class="data-table-wrapper">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Ranking</th>
+                    <th>Nama Calon Siswa</th>
+                    <th>NISN</th>
+                    <th>Nilai Rata-rata</th>
+                    <th>Jalur</th>
+                    <th>Keputusan Seleksi</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>#1</strong></td>
+                    <td>Muhammad Rayhan Pratama</td>
+                    <td>0098765432</td>
+                    <td><strong>91.45</strong></td>
+                    <td>Reguler</td>
+                    <td>
+                      <select class="form-select" style="width: auto; padding: 4px 8px; font-size: 13px;">
+                        <option value="Accepted" selected>✓ Diterima (Accepted)</option>
+                        <option value="Not Accepted">✗ Belum Diterima</option>
+                      </select>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><strong>#2</strong></td>
+                    <td>Nabila Shafa Putri</td>
+                    <td>0093344556</td>
+                    <td><strong>89.80</strong></td>
+                    <td>Prestasi</td>
+                    <td>
+                      <select class="form-select" style="width: auto; padding: 4px 8px; font-size: 13px;">
+                        <option value="Accepted" selected>✓ Diterima (Accepted)</option>
+                        <option value="Not Accepted">✗ Belum Diterima</option>
+                      </select>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><strong>#3</strong></td>
+                    <td>Fahri Ahmad Zaki</td>
+                    <td>0089988776</td>
+                    <td><strong>88.10</strong></td>
+                    <td>Reguler</td>
+                    <td>
+                      <select class="form-select" style="width: auto; padding: 4px 8px; font-size: 13px;">
+                        <option value="Accepted" selected>✓ Diterima (Accepted)</option>
+                        <option value="Not Accepted">✗ Belum Diterima</option>
+                      </select>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==========================================
+           SCREEN 8: LAPORAN & EKSPOR (ADMIN)
+           ========================================== -->
+      <div id="screen-laporan-admin" class="screen-view" style="display: none;">
+        <div class="screen-meta">
+          <div><strong>Area Admin/Panitia</strong> — Laporan & Rekapitulasi Data Pendaftar</div>
+          <div class="screen-notes">Ekspor data resmi ke format PDF dan lembar kerja Excel (.xlsx)</div>
+        </div>
+
+        <div class="admin-layout">
+          <div class="admin-sidebar">
+            <a class="admin-menu-item" onclick="switchScreen('dashboard-admin')">📊 Dashboard & Data</a>
+            <a class="admin-menu-item" onclick="switchScreen('verifikasi-admin')">🔍 Verifikasi Berkas</a>
+            <a class="admin-menu-item" onclick="switchScreen('seleksi-admin')">⚖️ Seleksi & Hasil</a>
+            <a class="admin-menu-item active" onclick="switchScreen('laporan-admin')">📑 Laporan & Ekspor</a>
+          </div>
+
+          <div class="admin-content">
+            <h1 style="font-size: 24px; font-weight: 800; margin-bottom: 6px;">Laporan & Rekapitulasi PPDB</h1>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">Unduh rekap data peserta untuk arsip sekolah dan dinas pendidikan</p>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+              <!-- Export Card 1: PDF -->
+              <div class="card">
+                <div style="font-size: 32px; margin-bottom: 12px;">📑</div>
+                <h3 style="font-size: 17px; font-weight: 700; margin-bottom: 6px;">Laporan Rekapitulasi Kelulusan (PDF)</h3>
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 18px;">
+                  Dokumen rekap resmi siap cetak berisi daftar siswa yang diterima dan belum diterima, lengkap dengan tanda tangan panitia.
+                </p>
+                <button class="btn btn-primary btn-sm" onclick="alert('Simulasi ekspor PDF: Dokumen Laporan_Kelulusan_PPDB_2026.pdf siap diunduh.')">
+                  Unduh Dokumen PDF ↓
+                </button>
+              </div>
+
+              <!-- Export Card 2: Excel -->
+              <div class="card">
+                <div style="font-size: 32px; margin-bottom: 12px;">📊</div>
+                <h3 style="font-size: 17px; font-weight: 700; margin-bottom: 6px;">Ekspor Seluruh Data Pendaftar (Excel)</h3>
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 18px;">
+                  Format data mentah (.xlsx) mencakup biodata lengkap, kontak orang tua, nilai ujian, dan status dokumen untuk arsip TU.
+                </p>
+                <button class="btn btn-outline btn-sm" onclick="alert('Simulasi ekspor Excel: File Data_Pendaftar_PPDB_2026.xlsx siap diunduh.')">
+                  Unduh Lembar Kerja Excel (.xlsx) ↓
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // State management for wireframe explorer
+    let currentScreen = 'publik';
+    let currentState = 'normal';
+    let isRegisterMode = false;
+    let isAnnouncementPublished = false;
+
+    function switchScreen(screenId, subAction) {
+      currentScreen = screenId;
+      document.querySelectorAll('.screen-view').forEach(el => el.style.display = 'none');
+      const target = document.getElementById('screen-' + screenId);
+      if (target) {
+        target.style.display = 'block';
+      }
+
+      // Update Toolbar Nav Tabs
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(screenId)) {
+          btn.classList.add('active');
+        }
+      });
+
+      // Subactions
+      if (screenId === 'auth') {
+        if (subAction === 'admin') {
+          toggleAuthRole('admin');
+        } else {
+          toggleAuthRole('siswa');
+          if (subAction === 'register') {
+            setAuthMode(true);
+          } else {
+            setAuthMode(false);
+          }
+        }
+      }
+    }
+
+    function setScreenState(state) {
+      currentState = state;
+      document.querySelectorAll('.state-btn').forEach(b => b.classList.remove('active'));
+      const activeBtn = Array.from(document.querySelectorAll('.state-btn')).find(b => b.textContent.toLowerCase() === state);
+      if (activeBtn) activeBtn.classList.add('active');
+
+      const target = document.getElementById('screen-' + currentScreen);
+      if (target) {
+        target.className = 'screen-view state-' + state;
+      }
+    }
+
+    function setViewport(vp) {
+      document.querySelectorAll('.vp-btn').forEach(b => b.classList.remove('active'));
+      const activeBtn = Array.from(document.querySelectorAll('.vp-btn')).find(b => b.textContent.toLowerCase().includes(vp));
+      if (activeBtn) activeBtn.classList.add('active');
+
+      const frame = document.getElementById('viewportFrame');
+      frame.className = 'viewport-frame ' + (vp === 'desktop' ? '' : vp);
+    }
+
+    // Auth screen role switcher
+    function toggleAuthRole(role) {
+      const siswaBox = document.getElementById('auth-box-siswa');
+      const adminBox = document.getElementById('auth-box-admin');
+      const tabSiswa = document.getElementById('auth-tab-siswa');
+      const tabAdmin = document.getElementById('auth-tab-admin');
+
+      if (role === 'admin') {
+        siswaBox.style.display = 'none';
+        adminBox.style.display = 'block';
+        tabAdmin.style.borderBottomColor = 'var(--primary)';
+        tabAdmin.style.color = 'var(--primary)';
+        tabAdmin.style.fontWeight = '700';
+        tabSiswa.style.borderBottomColor = 'transparent';
+        tabSiswa.style.color = 'var(--text-muted)';
+        tabSiswa.style.fontWeight = '500';
+      } else {
+        siswaBox.style.display = 'block';
+        adminBox.style.display = 'none';
+        tabSiswa.style.borderBottomColor = 'var(--primary)';
+        tabSiswa.style.color = 'var(--primary)';
+        tabSiswa.style.fontWeight = '700';
+        tabAdmin.style.borderBottomColor = 'transparent';
+        tabAdmin.style.color = 'var(--text-muted)';
+        tabAdmin.style.fontWeight = '500';
+      }
+    }
+
+    function setAuthMode(isReg) {
+      isRegisterMode = isReg;
+      const title = document.getElementById('auth-siswa-title');
+      const toggleBtn = document.getElementById('auth-toggle-mode-btn');
+      const fieldNama = document.getElementById('auth-field-nama');
+      const fieldEmail = document.getElementById('auth-field-email');
+      const fieldKonfirm = document.getElementById('auth-field-konfirm');
+
+      if (isRegisterMode) {
+        title.textContent = 'Daftar Akun Calon Siswa';
+        toggleBtn.textContent = 'Sudah Ada Akun? Masuk';
+        fieldNama.style.display = 'block';
+        fieldEmail.style.display = 'block';
+        fieldKonfirm.style.display = 'block';
+      } else {
+        title.textContent = 'Masuk Akun Siswa';
+        toggleBtn.textContent = 'Daftar Baru';
+        fieldNama.style.display = 'none';
+        fieldEmail.style.display = 'none';
+        fieldKonfirm.style.display = 'none';
+      }
+    }
+
+    function toggleAuthMode() {
+      setAuthMode(!isRegisterMode);
+    }
+
+    // Multi-step Registration Form
+    function goToStep(stepNum) {
+      for (let i = 1; i <= 5; i++) {
+        const tab = document.getElementById('step-tab-' + i);
+        const nav = document.getElementById('step-nav-' + i);
+        if (tab && nav) {
+          tab.style.display = (i === stepNum) ? 'block' : 'none';
+          nav.classList.remove('active', 'done');
+          if (i < stepNum) nav.classList.add('done');
+          if (i === stepNum) nav.classList.add('active');
+        }
+      }
+    }
+
+    function submitRegistration() {
+      alert('Pendaftaran berhasil dikirim! Menuju Dashboard Calon Siswa...');
+      switchScreen('dashboard-siswa');
+      setApplicantStatus('Under Review');
+    }
+
+    // Dashboard Applicant Status Simulation
+    function setApplicantStatus(status) {
+      const container = document.getElementById('applicant-badge-container');
+      const desc = document.getElementById('applicant-status-desc');
+      const revBox = document.getElementById('revision-alert-box');
+      const accBox = document.getElementById('result-box-accepted');
+
+      revBox.style.display = 'none';
+      accBox.style.display = 'none';
+
+      let badgeHtml = '';
+      let textDesc = '';
+
+      switch(status) {
+        case 'Draft':
+          badgeHtml = '<span class="badge badge-draft"><span class="dot"></span> Draft (Belum Dikirim)</span>';
+          textDesc = 'Formulir Anda masih tersimpan sebagai draf. Silakan lengkapi seluruh biodata dan berkas lalu klik Kirim Pendaftaran.';
+          break;
+        case 'Submitted':
+          badgeHtml = '<span class="badge badge-submitted"><span class="dot"></span> Submitted (Pendaftaran Dikirim)</span>';
+          textDesc = 'Pendaftaran Anda berhasil dikirim ke server dan menunggu giliran penugasan verifikator sekolah.';
+          break;
+        case 'Under Review':
+          badgeHtml = '<span class="badge badge-under-review"><span class="dot"></span> Under Review (Sedang Diverifikasi)</span>';
+          textDesc = 'Berkas Anda sedang diperiksa secara teliti oleh panitia verifikator. Mohon pantau berkala.';
+          break;
+        case 'Needs Revision':
+          badgeHtml = '<span class="badge badge-needs-revision"><span class="dot"></span> Needs Revision (Perlu Perbaikan Berkas)</span>';
+          textDesc = 'Panitia menemukan ketidaksesuaian pada dokumen yang diunggah. Mohon periksa catatan di bawah dan unggah ulang berkas terkait.';
+          revBox.style.display = 'block';
+          break;
+        case 'Verified':
+          badgeHtml = '<span class="badge badge-verified"><span class="dot"></span> Verified (Berkas Terverifikasi)</span>';
+          textDesc = 'Seluruh data dan berkas fisik Anda telah dinyatakan SAH dan lengkap. Anda berhak mengikuti tahapan pemeringkatan/seleksi.';
+          break;
+        case 'Accepted':
+          badgeHtml = '<span class="badge badge-accepted"><span class="dot"></span> Accepted (Diterima)</span>';
+          textDesc = 'Selamat! Anda dinyatakan lolos seleksi dan diterima di MTs/SMP Negeri 1.';
+          accBox.style.display = 'block';
+          break;
+        case 'Not Accepted':
+          badgeHtml = '<span class="badge badge-not-accepted"><span class="dot"></span> Not Accepted (Belum Diterima)</span>';
+          textDesc = 'Mohon maaf, berdasarkan kuota daya tampung dan hasil seleksi akhir, Anda belum dapat diterima pada periode ini.';
+          break;
+      }
+
+      container.innerHTML = badgeHtml;
+      desc.textContent = textDesc;
+    }
+
+    // Admin Revision box toggle
+    function toggleRevisionNoteBox() {
+      const box = document.getElementById('admin-revision-input-box');
+      box.style.display = (box.style.display === 'none' || box.style.display === '') ? 'block' : 'none';
+    }
+
+    // Toggle publish announcement
+    function togglePublishAnnouncement() {
+      isAnnouncementPublished = !isAnnouncementPublished;
+      const label = document.getElementById('publish-status-label');
+      const btn = document.getElementById('publish-toggle-btn');
+
+      if (isAnnouncementPublished) {
+        label.textContent = 'TERBIT / DIPUBLIKASIKAN';
+        label.style.color = 'var(--success)';
+        btn.textContent = 'Tarik ke Draft';
+        btn.style.background = '#64746B';
+        alert('Pengumuman resmi berhasil diterbitkan ke seluruh dashboard calon siswa!');
+      } else {
+        label.textContent = 'DRAFT (Belum Diterbitkan)';
+        label.style.color = 'var(--warning)';
+        btn.textContent = 'Terbitkan Pengumuman';
+        btn.style.background = 'var(--primary)';
+        alert('Pengumuman ditarik kembali ke status Draf.');
+      }
+    }
+  </script>
+</body>
+</html>
