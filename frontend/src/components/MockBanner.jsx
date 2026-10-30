@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { Info, User, ShieldCheck } from 'lucide-react';
+import { ShieldCheck, User, X, ChevronUp, Cpu } from 'lucide-react';
 
 export default function MockBanner() {
   const {
@@ -12,102 +12,209 @@ export default function MockBanner() {
     isBackendConnected
   } = useApp();
 
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
-    <div
-      style={{
-        backgroundColor: '#173126',
-        color: '#ffffff',
-        padding: '8px 16px',
-        fontSize: '12.5px',
-        borderBottom: '1px solid #234636',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: '10px',
-        zIndex: 1000,
-        position: 'relative'
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span
-          style={{
-            backgroundColor: isBackendConnected ? '#16834a' : '#238653',
-            color: '#ffffff',
-            fontWeight: 700,
-            padding: '2px 8px',
-            borderRadius: '999px',
-            fontSize: '11px',
-            letterSpacing: '0.04em'
-          }}
-        >
-          {isBackendConnected ? 'FASE 4 • TERINTEGRASI BACKEND API' : 'FASE 4 • INTEGRASI ALUR PPDB'}
+    <>
+      {/* Top Professional Announcement Ribbon */}
+      <div
+        style={{
+          background: 'linear-gradient(90deg, #064e3b 0%, #15803d 50%, #047857 100%)',
+          color: '#ffffff',
+          fontSize: '12px',
+          padding: '6px 16px',
+          fontWeight: 600,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '8px',
+          letterSpacing: '0.02em',
+          position: 'relative',
+          zIndex: 890,
+          boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+        }}
+      >
+        <span className="badge-pulse" style={{ marginRight: '4px' }}>
+          <span className="badge-dot" style={{ backgroundColor: '#4ade80' }}></span>
         </span>
-        <span style={{ color: '#d1fae5', display: 'flex', alignItems: 'center', gap: '6px' }}>
-          {isBackendConnected ? (
-            <>🟢 Server Backend & SQLite Aktif (Port 3001)</>
-          ) : (
-            <><Info size={14} /> Menghubungkan ke Backend...</>
-          )}
+        <span>
+          📢 <strong>PPDB Tahun Ajaran 2026/2027 Resmi Dibuka</strong> — Kuota 216 Siswa • Pendaftaran Daring 100% Bebas Biaya
         </span>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-        {/* State Simulator Switcher */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: '#234636', padding: '2px', borderRadius: '6px' }}>
-          <span style={{ padding: '0 6px', color: '#94a3b8', fontSize: '11px' }}>Simulasi State:</span>
-          {['normal', 'loading', 'empty', 'error'].map((st) => (
-            <button
-              key={st}
-              onClick={() => setGlobalSimState(st)}
+      {/* Floating Modern DevTools Pill in Bottom Right Corner */}
+      <div
+        style={{
+          position: 'fixed',
+          bottom: '20px',
+          right: '20px',
+          zIndex: 9999
+        }}
+      >
+        {!isOpen ? (
+          <button
+            onClick={() => setIsOpen(true)}
+            style={{
+              background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+              color: '#ffffff',
+              border: '1px solid #334155',
+              padding: '8px 14px',
+              borderRadius: '999px',
+              fontSize: '12px',
+              fontWeight: 600,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              cursor: 'pointer',
+              boxShadow: '0 10px 25px rgba(0,0,0,0.35)',
+              transition: 'var(--transition)'
+            }}
+            title="Klik untuk membuka Pengaturan Pengembang & Cepat Masuk"
+          >
+            <span
               style={{
-                background: globalSimState === st ? '#ffffff' : 'transparent',
-                color: globalSimState === st ? '#173126' : '#cbd5e1',
-                border: 'none',
-                borderRadius: '4px',
-                padding: '2px 8px',
-                fontSize: '11px',
-                fontWeight: globalSimState === st ? 700 : 500,
-                cursor: 'pointer',
-                textTransform: 'capitalize'
+                width: '8px',
+                height: '8px',
+                borderRadius: '50%',
+                backgroundColor: isBackendConnected ? '#22c55e' : '#eab308',
+                boxShadow: isBackendConnected ? '0 0 8px #22c55e' : 'none'
               }}
-            >
-              {st}
-            </button>
-          ))}
-        </div>
+            ></span>
+            <span>DevTools</span>
+            <ChevronUp size={14} style={{ color: '#94a3b8' }} />
+          </button>
+        ) : (
+          <div
+            style={{
+              width: '320px',
+              background: '#0f172a',
+              color: '#f8fafc',
+              border: '1px solid #334155',
+              borderRadius: '16px',
+              padding: '16px',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.45)',
+              fontSize: '12px'
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', borderBottom: '1px solid #1e293b', paddingBottom: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 700, color: '#38bdf8' }}>
+                <Cpu size={16} /> Panel Pengembang (DevTools)
+              </div>
+              <button
+                onClick={() => setIsOpen(false)}
+                style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
+              >
+                <X size={16} />
+              </button>
+            </div>
 
-        {/* Quick Role Switcher */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ color: '#94a3b8', fontSize: '11px' }}>Peran Cepat:</span>
-          {!currentUser ? (
-            <>
-              <button
-                className="btn btn-sm"
-                onClick={() => login('student')}
-                style={{ padding: '3px 8px', fontSize: '11px', background: '#234636', color: '#fff', border: '1px solid #33614b' }}
-              >
-                <User size={12} /> Masuk sbg Siswa
-              </button>
-              <button
-                className="btn btn-sm"
-                onClick={() => login('admin')}
-                style={{ padding: '3px 8px', fontSize: '11px', background: '#234636', color: '#fff', border: '1px solid #33614b' }}
-              >
-                <ShieldCheck size={12} /> Masuk sbg Admin
-              </button>
-            </>
-          ) : (
-            <button
-              className="btn btn-sm"
-              onClick={logout}
-              style={{ padding: '3px 8px', fontSize: '11px', background: '#dc2626', color: '#fff', border: 'none' }}
-            >
-              Keluar ({currentUser.role === 'admin' ? 'Admin' : 'Siswa'})
-            </button>
-          )}
-        </div>
+            {/* Backend status */}
+            <div style={{ marginBottom: '12px', background: '#1e293b', padding: '8px 10px', borderRadius: '8px' }}>
+              <div style={{ color: '#94a3b8', fontSize: '11px', marginBottom: '2px' }}>Status Backend:</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600, color: isBackendConnected ? '#4ade80' : '#facc15' }}>
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: isBackendConnected ? '#4ade80' : '#facc15' }}></span>
+                {isBackendConnected ? 'Aktif (Express + SQLite Port 3001)' : 'Menghubungkan...'}
+              </div>
+            </div>
+
+            {/* State Simulation */}
+            <div style={{ marginBottom: '12px' }}>
+              <div style={{ color: '#94a3b8', fontSize: '11px', marginBottom: '6px' }}>Simulasi State Tampilan:</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '4px' }}>
+                {['normal', 'loading', 'empty', 'error'].map((st) => (
+                  <button
+                    key={st}
+                    onClick={() => setGlobalSimState(st)}
+                    style={{
+                      padding: '4px',
+                      borderRadius: '6px',
+                      fontSize: '10.5px',
+                      fontWeight: globalSimState === st ? 700 : 500,
+                      background: globalSimState === st ? '#15803d' : '#1e293b',
+                      color: globalSimState === st ? '#ffffff' : '#cbd5e1',
+                      border: 'none',
+                      cursor: 'pointer',
+                      textTransform: 'capitalize'
+                    }}
+                  >
+                    {st}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Quick role switch */}
+            <div>
+              <div style={{ color: '#94a3b8', fontSize: '11px', marginBottom: '6px' }}>Ganti Akun Cepat:</div>
+              {!currentUser ? (
+                <div style={{ display: 'flex', gap: '6px' }}>
+                  <button
+                    onClick={() => login('student')}
+                    style={{
+                      flex: 1,
+                      padding: '6px 8px',
+                      background: '#15803d',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '4px'
+                    }}
+                  >
+                    <User size={12} /> Masuk Siswa
+                  </button>
+                  <button
+                    onClick={() => login('admin')}
+                    style={{
+                      flex: 1,
+                      padding: '6px 8px',
+                      background: '#0284c7',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '4px'
+                    }}
+                  >
+                    <ShieldCheck size={12} /> Masuk Admin
+                  </button>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#1e293b', padding: '6px 10px', borderRadius: '8px' }}>
+                  <span style={{ fontSize: '11px', color: '#cbd5e1' }}>
+                    Login: <strong>{currentUser.nama || currentUser.role}</strong>
+                  </span>
+                  <button
+                    onClick={logout}
+                    style={{
+                      background: '#ef4444',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '6px',
+                      padding: '3px 8px',
+                      fontSize: '10.5px',
+                      fontWeight: 600,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Keluar
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
-    </div>
+    </>
   );
 }

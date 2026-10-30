@@ -15,39 +15,42 @@ export default function Navbar() {
   return (
     <header
       style={{
-        backgroundColor: '#ffffff',
-        borderBottom: '1px solid var(--border)',
+        backgroundColor: 'rgba(255, 255, 255, 0.94)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+        borderBottom: '1px solid rgba(226, 232, 240, 0.8)',
         position: 'sticky',
         top: 0,
         zIndex: 900,
-        boxShadow: 'var(--shadow-xs)'
+        boxShadow: '0 4px 20px -2px rgba(15, 23, 42, 0.04)'
       }}
     >
-      <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '70px' }}>
+      <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '72px' }}>
         {/* Logo & Brand */}
         <div
           onClick={() => handleNav('home')}
-          style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}
+          style={{ display: 'flex', alignItems: 'center', gap: '14px', cursor: 'pointer' }}
         >
           <div
             style={{
-              width: '42px',
-              height: '42px',
-              borderRadius: 'var(--radius-sm)',
-              backgroundColor: 'var(--primary-light)',
-              color: 'var(--primary)',
+              width: '44px',
+              height: '44px',
+              borderRadius: '12px',
+              background: 'linear-gradient(135deg, #15803d 0%, #166534 100%)',
+              color: '#ffffff',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              boxShadow: '0 4px 12px rgba(21, 128, 61, 0.28)'
             }}
           >
             <GraduationCap size={26} />
           </div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: '17px', color: 'var(--primary)', lineHeight: 1.1 }}>
-              PPDB Online
+            <div style={{ fontWeight: 800, fontSize: '18px', color: '#0f172a', lineHeight: 1.1, letterSpacing: '-0.01em' }}>
+              PPDB <span style={{ color: 'var(--primary)' }}>Online</span>
             </div>
-            <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 500 }}>
+            <div style={{ fontSize: '11.5px', color: '#64748b', fontWeight: 600 }}>
               {SCHOOL_INFO.name}
             </div>
           </div>

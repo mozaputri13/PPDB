@@ -85,25 +85,72 @@ export default function StudentDashboard() {
         </div>
       </div>
 
-      {/* Status Switcher Toolbar (Testing Aide) */}
-      <div
+      {/* Visual Timeline Stepper */}
+      <div className="card-modern" style={{ padding: '24px 28px', marginBottom: '28px' }}>
+        <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+          Tahapan Perjalanan Pendaftaran Anda:
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px' }} className="timeline-grid">
+          {[
+            { step: '1', title: 'Kirim Berkas', sub: 'Submitted', done: ['Submitted', 'Under Review', 'Needs Revision', 'Verified', 'Accepted', 'Not Accepted'].includes(myRecord.status) },
+            { step: '2', title: 'Verifikasi', sub: 'Under Review', done: ['Under Review', 'Needs Revision', 'Verified', 'Accepted', 'Not Accepted'].includes(myRecord.status), alert: myRecord.status === 'Needs Revision' },
+            { step: '3', title: 'Lolos Berkas', sub: 'Verified', done: ['Verified', 'Accepted', 'Not Accepted'].includes(myRecord.status) },
+            { step: '4', title: 'Hasil Seleksi', sub: 'Pengumuman', done: ['Accepted', 'Not Accepted'].includes(myRecord.status), isFinal: true }
+          ].map((item, idx) => (
+            <div
+              key={idx}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                textAlign: 'center',
+                padding: '12px 8px',
+                borderRadius: '12px',
+                background: item.alert ? '#fef3c7' : item.done ? '#ecfdf5' : '#f8fafc',
+                border: item.alert ? '1px solid #fde68a' : item.done ? '1px solid #bbf7d0' : '1px solid var(--border)'
+              }}
+            >
+              <div
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  background: item.alert ? '#d97706' : item.done ? 'var(--primary)' : '#e2e8f0',
+                  color: item.done || item.alert ? '#ffffff' : '#64748b',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 700,
+                  fontSize: '13px',
+                  marginBottom: '8px'
+                }}
+              >
+                {item.done ? '✓' : item.step}
+              </div>
+              <div style={{ fontSize: '13px', fontWeight: 700, color: item.alert ? '#92400e' : item.done ? 'var(--primary)' : '#475569' }}>
+                {item.title}
+              </div>
+              <div style={{ fontSize: '11px', color: '#64748b' }}>{item.sub}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Status Switcher Toolbar (Testing Aide - Collapsible) */}
+      <details
         style={{
-          background: '#eef8f2',
-          border: '1px dashed var(--primary)',
+          background: '#f8fafc',
+          border: '1px solid var(--border)',
           borderRadius: 'var(--radius-sm)',
-          padding: '12px 18px',
-          marginBottom: '28px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: '10px'
+          padding: '10px 16px',
+          marginBottom: '24px',
+          fontSize: '12.5px'
         }}
       >
-        <div style={{ fontSize: '12.5px', fontWeight: 700, color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <Sparkles size={16} /> Uji Coba 7 Status PRD untuk Calon Siswa Ini:
-        </div>
-        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+        <summary style={{ cursor: 'pointer', fontWeight: 600, color: 'var(--text-muted)' }}>
+          ⚙️ Uji Coba Simulasi 7 Status Pendaftaran (Panel Pengembang)
+        </summary>
+        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '12px' }}>
           {Object.values(REGISTRATION_STATUSES).map((st) => (
             <button
               key={st}
@@ -121,7 +168,7 @@ export default function StudentDashboard() {
             </button>
           ))}
         </div>
-      </div>
+      </details>
 
       {/* Main Status Card */}
       <div className="card" style={{ padding: '28px', marginBottom: '24px', borderLeft: '6px solid var(--primary)' }}>
